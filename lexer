@@ -36,8 +36,8 @@ public class lexer
 %}
 %state COMMENT
 
-
-KEYWORD=data
+DATATYPES=(String|Bool)
+KEYWORD=(data|deriving|type|if|then|else|where)
 ALPHA=[A-Za-z]
 DIGIT=[0-9]
 ALPHA_NUMERIC={ALPHA}|{DIGIT}
@@ -63,6 +63,13 @@ WHITE_SPACE=([\ \n\r\t\f\b])+
 <YYINITIAL> {WHITE_SPACE} { 
 }
 
+<YYINITIAL> {DATATYPES} { 
+  return "DT\t" + yytext();
+}
+
+<YYINITIAL> {IDENTIFIER} { 
+  return "ID\t" + yytext();
+}
 
 <YYINITIAL> "=" { 
   return "AO\t="; 
