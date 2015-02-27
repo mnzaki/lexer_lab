@@ -35,7 +35,10 @@ public class lexer
   public String sourceFilename;
 %}
 %state COMMENT
+%state LONGCOMMENT
+%state LONGCOMMENT2
 
+FRS=(Show|Eq)
 DATATYPES=(String|Bool)
 KEYWORD=(data|deriving|type|if|then|else|where)
 ALPHA=[A-Za-z]
@@ -44,6 +47,7 @@ ALPHA_NUMERIC={ALPHA}|{DIGIT}
 IDENTIFIER={ALPHA}({ALPHA_NUMERIC})*
 NUMBER=(([-])?{DIGIT})
 WHITE_SPACE=([\ \n\r\t\f\b])+
+STRING=\".*\"
 %%
 
 
@@ -56,6 +60,22 @@ WHITE_SPACE=([\ \n\r\t\f\b])+
   yybegin(YYINITIAL);
 }
 
+<YYINITIAL> "{-" {
+  yybegin(LONGCOMMENT);
+}
+<LONGCOMMENT> [^-] {
+}
+<LONGCOMMENT> "-" {
+  yybegin(LONGCOMMENT2);
+}
+<LONGCOMMENT2> [^}] {
+  yybegin(LONGCOMMENT);
+}
+<LONGCOMMENT2> "}" {
+  yybegin(YYINITIAL);
+}
+
+
 <YYINITIAL> {KEYWORD} { 
   return "KW\t"+ yytext();
 }
@@ -67,13 +87,74 @@ WHITE_SPACE=([\ \n\r\t\f\b])+
   return "DT\t" + yytext();
 }
 
+<YYINITIAL> {FRS} {
+  return "FR\t" + yytext();
+}
+
 <YYINITIAL> {IDENTIFIER} { 
   return "ID\t" + yytext();
 }
 
-<YYINITIAL> "=" { 
-  return "AO\t="; 
+<YYINITIAL> {STRING} {
+  return "ST\t" + yytext();
 }
+
+
+<YYINITIAL> "=" {
+  return "AO\t=";
+}
+<YYINITIAL> "->" {
+  return "AR\t->";
+}
+<YYINITIAL> "|" {
+  return "BR\t|";
+}
+<YYINITIAL> ":" {
+  return "CL\t:";
+}
+<YYINITIAL> "++" {
+  return "CN\t++";
+}
+<YYINITIAL> "[]" {
+  return "EL\t[]";
+}
+<YYINITIAL> "==" {
+  return "EQ\t==";
+}
+<YYINITIAL> "," {
+  return "FA\t,";
+}
+<YYINITIAL> ">=" {
+  return "GE\t>=";
+}
+<YYINITIAL> "::" {
+  return "HT\t::";
+}
+<YYINITIAL> "(" {
+  return "LB\t(";
+}
+<YYINITIAL> "{" {
+  return "LC\t{";
+}
+<YYINITIAL> "[" {
+  return "LS\t[";
+}
+<YYINITIAL> ")" {
+  return "RB\t)";
+}
+<YYINITIAL> "}" {
+  return "RC\t}";
+}
+<YYINITIAL> "]" {
+  return "RS\t]";
+}
+<YYINITIAL> ";" {
+  return "SM\t;";
+}
+<YYINITIAL> "_" {
+  return "WC\t_";
+}
+
 <YYINITIAL> . { 
   return "Undefined\t"+yytext(); 
 }
