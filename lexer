@@ -38,9 +38,9 @@ public class lexer
 %state LONGCOMMENT
 %state LONGCOMMENT2
 
-FRS=(Show|Eq)
-DATATYPES=(String|Bool)
-KEYWORD=(data|deriving|type|if|then|else|where)
+FRS=(Show|Eq|Ord)
+DATATYPES=(String|Bool|Int|Integer)
+KEYWORD=(data|deriving|type|if|then|else|where|otherwise|False|True)
 ALPHA=[A-Za-z]
 DIGIT=[0-9]
 ALPHA_NUMERIC={ALPHA}|{DIGIT}
@@ -99,6 +99,10 @@ STRING=\".*\"
   return "ST\t" + yytext();
 }
 
+<YYINITIAL> {NUMBER} {
+  return "NM\t" + yytext();
+}
+
 
 <YYINITIAL> "=" {
   return "AO\t=";
@@ -154,6 +158,30 @@ STRING=\".*\"
 <YYINITIAL> "_" {
   return "WC\t_";
 }
+
+
+<YYINITIAL> "=>" {
+  return "DA\t=>";
+}
+<YYINITIAL> ".." {
+  return "DD\t..";
+}
+<YYINITIAL> "!!" {
+  return "FN\t!!";
+}
+<YYINITIAL> "<" {
+  return "LT\t<";
+}
+<YYINITIAL> "+" {
+  return "PO\t+";
+}
+<YYINITIAL> "*" {
+  return "MB\t*";
+}
+<YYINITIAL> "-" {
+  return "MO\t-";
+}
+
 
 <YYINITIAL> . { 
   return "Undefined\t"+yytext(); 
