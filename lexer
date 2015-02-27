@@ -1,0 +1,72 @@
+import java.util.*;
+import java.io.*;
+
+/* semantic value of token returned by scanner */
+
+public class lexer
+{
+	public static void main (String[] args) throws IOException
+	{
+		BufferedReader reader = new BufferedReader(new FileReader("input.hs"));
+		BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
+		Yylex yy = new Yylex (reader);
+		while(true)
+		{
+			String x =yy.next_token();
+			if(x==null)
+				break;
+			writer.write(x);	
+			writer.write('\n');
+		}
+		reader.close();
+		writer.close();
+	}
+}
+
+%%
+%function next_token
+%type String
+
+%eofval{
+  return null;
+%eofval}
+
+%{
+  public String sourceFilename;
+%}
+%state COMMENT
+
+
+KEYWORD=data
+ALPHA=[A-Za-z]
+DIGIT=[0-9]
+ALPHA_NUMERIC={ALPHA}|{DIGIT}
+IDENTIFIER={ALPHA}({ALPHA_NUMERIC})*
+NUMBER=(([-])?{DIGIT})
+WHITE_SPACE=([\ \n\r\t\f\b])+
+%%
+
+
+<YYINITIAL> "--" {
+  yybegin(COMMENT);
+}
+<COMMENT> [^\n] {
+}
+<COMMENT> [\n] {
+  yybegin(YYINITIAL);
+}
+
+<YYINITIAL> {KEYWORD} { 
+  return "KW\t"+ yytext();
+}
+
+<YYINITIAL> {WHITE_SPACE} { 
+}
+
+
+<YYINITIAL> "=" { 
+  return "AO\t="; 
+}
+<YYINITIAL> . { 
+  return "Undefined\t"+yytext(); 
+}
